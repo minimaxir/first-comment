@@ -169,6 +169,7 @@ fte_theme <- function (palate_color = "Greys") {
     theme(legend.text = element_text(size=7,colour=color.axis.title,family=font.axis)) +
     # Set title and axis labels, and format these and tick marks
     theme(plot.title=element_text(colour=color.title,family=font.title, size=9, vjust=1.25, lineheight=0.1)) +
+    #theme(plot.subtitle=element_text(colour=color.axis.text,family=font.title, size=6, vjust=1.25, lineheight=0.1)) +
     theme(axis.text.x=element_text(size=7,colour=color.axis.text,family=font.axis)) +
     theme(axis.text.y=element_text(size=7,colour=color.axis.text,family=font.axis)) +
     theme(axis.title.y=element_text(size=7,colour=color.axis.title,family=font.title, vjust=1.25)) +

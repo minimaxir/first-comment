@@ -1,16 +1,24 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "What Percentage of the Top Comments in Reddit Threads Were Also the 1st Comment?"
+output: 
+  html_notebook: 
+    highlight: tango
+    number_sections: yes
+    theme: flatly
+    toc: yes
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+# Intro/Setup
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+Setup the R packages.
 
 ```{r}
 source("Rstart.R")
 library(viridis)
+library(plotly)
 ```
+
+This project uses data from BigQuery. To get the data for the first charts:
 
 ```sql
 SELECT created_rank, score_rank,
@@ -21,25 +29,25 @@ SELECT
 subreddit,
 ROW_NUMBER() OVER (PARTITION BY link_id ORDER BY score DESC) AS score_rank, 
 ROW_NUMBER() OVER (PARTITION BY link_id ORDER BY created_utc ASC) AS created_rank,
-COUNT(*) OVER (PARTITION BY link_id) AS num_comments_in_thread
+COUNT(*) OVER (PARTITION BY link_id) AS num_toplevelcomments_in_thread
 FROM [fh-bigquery:reddit_comments.all_starting_201501]
 WHERE link_id = parent_id
-AND LOWER(subreddit) = "askreddit"
 )
-WHERE score_rank <= 100 AND created_rank <= 100 AND num_comments_in_thread >= 100
+WHERE score_rank <= 100 AND created_rank <= 100 AND num_toplevelcomments_in_thread >= 30
 GROUP BY created_rank, score_rank
 ORDER BY created_rank, score_rank
 ```
 
+This outputs a 10,000 row file.
 
 ```{r}
-df <- read_csv("reddit_all_052015_askreddit.csv")
+df <- read_csv("reddit_012015_all.csv")
 
-df %>% head(1000)
+df %>% head()
 ```
 
 ```{r}
-plot <- ggplot(df %>% filter(created_rank <= 50, score_rank <= 50), aes(x=created_rank, y=score_rank, fill=num_comments)) +
+plot <- ggplot(df, aes(x=created_rank, y=score_rank, fill=log10(num_comments))) +
             geom_raster(interpolate = TRUE) +
             fte_theme() +
             scale_fill_viridis()
@@ -48,3 +56,48 @@ max_save(plot, "reddit-first", "Reddit")
 ```
 
 ![](reddit-first.png)
+
+```{r}
+plot <- ggplot(df, aes(x=created_rank, y=score_rank, fill=log10(num_comments), z=log10(num_comments))) +
+            geom_raster(interpolate = TRUE) +
+            geom_contour(color = "white", alpha = 0.5, bins = 5) +
+            scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
+            scale_y_continuous(breaks = c(1,seq(10,100,by=10))) +
+            fte_theme() +
+            scale_fill_viridis() +
+            labs(title = "Relationship between Time Comment Made and Score on Reddit",
+                 x = "Nth Top-Level Comment (Lower Number is Earlier)",
+                 y = "Comment Score Ranking (Lower Number is Higher Rank)")
+
+max_save(plot, "reddit-first-2", "Reddit (Jan 2015 - Sep 2016)", h=4)
+#ggplotly(plot, width="100%", tooltip=c("x", "y", "z"))
+```
+
+![](reddit-first-2.png)
+
+```{r}
+df_first_comment <- df %>% filter(created_rank == 1) %>%
+                        mutate(norm = num_comments/sum(num_comments))
+
+df_first_comment %>% select(score_rank, norm) %>% head()
+```
+
+The aggregate accounts for *n = `r df_first_comment %>% select(num_comments) %>% sum() %>% format(big.mark = ",")`* first comments.
+
+The total proportion of the top 5 ranks is `r df_first_comment %>% select(norm) %>% head(5) %>% sum() %>% round(2)`, and the top 10 ranks is `r df_first_comment %>% select(norm) %>% head(10) %>% sum() %>% round(2)`.
+
+```{r}
+plot <- ggplot(df_first_comment, aes(x=score_rank, y=norm)) +
+            geom_bar(stat = "identity") +
+            scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
+            scale_y_continuous(labels = percent) +
+            fte_theme() +
+            labs(title = "Does the First Comment on a Reddit thread Score Best",
+                 subtitle = "Proportion of Score Rankings for First Comment",
+                 x = "Score Rank of Comment on Thread (Lower is Top Score)",
+                 y = "Proportion of First Comments at Score Rank")
+
+max_save(plot, "reddit-first-3", "Reddit (Jan 2015 - Sep 2016)")
+#ggplotly(plot, width="100%", tooltip=c("x", "y", "z"))
+```
+![](reddit-first-3.png)
