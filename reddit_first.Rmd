@@ -86,7 +86,7 @@ plot <- ggplot(df, aes(x=created_rank, y=score_rank, fill=num_comments, z=num_co
             scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
             scale_y_continuous(breaks = c(1,seq(10,100,by=10))) +
             fte_theme() +
-            theme(legend.title = element_text(size=7, family="Open Sans Condensed Bold"), legend.position="top", legend.direction="horizontal", legend.key.width=unit(1.5, "cm"), legend.key.height=unit(0.25, "cm"), legend.margin=unit(0,"cm"), panel.margin=element_blank()) +
+            theme(legend.title = element_text(size=7, family="Open Sans Condensed Bold"), legend.position="top", legend.direction="horizontal", legend.key.width=unit(1.25, "cm"), legend.key.height=unit(0.25, "cm"), legend.margin=unit(0,"cm"), panel.margin=element_blank()) +
             scale_fill_viridis(name="# of\nComments", labels=comma, breaks=pretty_breaks(6)) +
             labs(title = "Heatmap between Time Comment Made on Reddit and Score Rank",
                  x = "# Top-Level Comment (Lower Number is Posted Earlier)",
@@ -106,8 +106,8 @@ plot <- ggplot(df, aes(x=created_rank, y=score_rank, fill=num_comments, z=log10(
             scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
             scale_y_continuous(breaks = c(1,seq(10,100,by=10))) +
             fte_theme() +
-            theme(legend.title = element_text(size=7, family="Open Sans Condensed Bold"), legend.position="top", legend.direction="horizontal", legend.key.width=unit(1.5, "cm"), legend.key.height=unit(0.25, "cm"), legend.margin=unit(0,"cm"), panel.margin=element_blank()) +
-            scale_fill_viridis(name="# of\nComments", labels=comma, breaks=10^(2:5), trans="log10") +
+            theme(legend.title = element_text(size=7, family="Open Sans Condensed Bold"), legend.position="top", legend.direction="horizontal", legend.key.width=unit(1.25, "cm"), legend.key.height=unit(0.25, "cm"), legend.margin=unit(0,"cm"), panel.margin=element_blank()) +
+            scale_fill_viridis(name="# of\nComments", labels=comma, breaks=10^(1:5), trans="log10") +
             labs(title = "Heatmap between Time Comment Made on Reddit and Score Rank",
                  x = "# Top-Level Comment (Lower Number is Posted Earlier)",
                  y = "Comment Score Ranking (Lower Number is Higher Score)")
@@ -308,11 +308,11 @@ plot <- ggplot(df_subreddits %>% filter(subreddit == p_subreddit), aes(x=created
             scale_y_continuous(breaks = c(1,seq(10,100,by=10))) +
             fte_theme() +
             theme(plot.title = element_text(size=7)) +
-            theme(legend.title = element_text(size=7, family="Open Sans Condensed Bold"), legend.position="top", legend.direction="horizontal", legend.key.width=unit(1.5, "cm"), legend.key.height=unit(0.25, "cm"), legend.margin=unit(0,"cm"), panel.margin=element_blank()) +
-            scale_fill_viridis(name="# of\nComments", labels=comma, breaks=10^(1:4), trans="log10") +
+            theme(legend.title = element_text(size=7, family="Open Sans Condensed Bold"), legend.position="top", legend.direction="horizontal", legend.key.width=unit(1.25, "cm"), legend.key.height=unit(0.25, "cm"), legend.margin=unit(0,"cm"), panel.margin=element_blank()) +
+            scale_fill_viridis(name="# of\nComments", labels=comma, breaks=10^(0:4), trans="log10") +
             labs(title = sprintf("Heatmap between Time Comment Made and Score Rank for /r/%s", p_subreddit),
                  x = "# Top-Level Comment (Lower Number is Posted Earlier)",
-                 y = "Comment Score Ranking (Lower Number is Higher Rank)")
+                 y = "Comment Score Ranking (Lower Number is Higher Score)")
 
 max_save(plot, sprintf("img-2d/%s-2d", p_subreddit), "Reddit (Jan 2015 - Sep 2016)")
 }
