@@ -12,6 +12,8 @@ output:
     toc_float: yes
 ---
 
+This R Notebook is the complement to my blog post [What Percent of the Top-Voted Comments in Reddit Threads Were Also 1st Comment?](http://minimaxir.com/2016/11/first-comment/).
+
 This notebook is licensed under the MIT License. If you use the code or data visualization designs contained within this notebook, it would be greatly appreciated if proper attribution is given back to this notebook and/or myself. Thanks! :)
 
 # Setup
@@ -26,7 +28,7 @@ library(bigrquery)
 library(htmlwidgets)
 ```
 
-This project uses data from BigQuery. To get the data for the first charts:
+This project uses data from [BigQuery](https://cloud.google.com/bigquery/). To get the data for the first charts, run this query:
 
 ```sql
 SELECT created_rank, score_rank,
@@ -134,7 +136,7 @@ plot <- ggplot(df_first_comment, aes(x=score_rank, y=norm)) +
             scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
             scale_y_continuous(labels = percent, breaks=pretty_breaks(6)) +
             fte_theme() +
-            theme(plot.title = element_text(size=7)) +
+            theme(plot.title = element_text(size=6)) +
             labs(title = "What Percentage of the 1st Comments in Reddit Threads Were Also the Top-Voted Comment?",
                  x = "Score Rank of First Comment in Thread (Lower Number is Higher Score)",
                  y = "Proportion of all First Comments at Score Rank")
@@ -162,7 +164,7 @@ plot <- ggplot(df_top_comment, aes(x=created_rank, y=norm)) +
             scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
             scale_y_continuous(labels = percent, breaks=pretty_breaks(6)) +
             fte_theme() +
-            theme(plot.title = element_text(size=7)) +
+            theme(plot.title = element_text(size=6)) +
             labs(title = "What Percentage of the Top-Voted Comments in Reddit Threads Were Also the 1st Comment?",
                  x = "# Comment Which Resulted in Top-Voted Comment (Lower Number is Posted Earlier)",
                  y = "Proportion of all Top-Voted Comments at Comment Posting #")
