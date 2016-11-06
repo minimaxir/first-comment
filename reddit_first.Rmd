@@ -1,5 +1,5 @@
 ---
-title: "What Percentage of the Top Comments in Reddit Threads Were Also the 1st Comment?"
+title: "What Percent of the Top-Voted Comments in Reddit Threads Were Also 1st Comment?"
 author: "Max Woolf (@minimaxir)"
 date: "November 7th, 2016"
 output:
@@ -10,8 +10,6 @@ output:
     theme: spacelab
     toc: yes
     toc_float: yes
-  pdf_document:
-    toc: yes
 ---
 
 This notebook is licensed under the MIT License. If you use the code or data visualization designs contained within this notebook, it would be greatly appreciated if proper attribution is given back to this notebook and/or myself. Thanks! :)
@@ -61,6 +59,8 @@ df <- read_csv("reddit_012015_all.csv")
 
 df %>% head()
 ```
+
+The total number of comments analyzed is **n = `r df %>% select(num_comments) %>% sum() %>% format(big.mark=",")`**.
 
 Plot a basic 2x2 heat map. A `log10()` filter is likely necessary to compress the values.
 
@@ -130,20 +130,46 @@ The total proportion of the top 5 ranks is `r df_first_comment %>% select(norm) 
 
 ```{r}
 plot <- ggplot(df_first_comment, aes(x=score_rank, y=norm)) +
-            geom_bar(stat = "identity") +
+            geom_bar(stat = "identity", fill = "#2980b9") +
             scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
             scale_y_continuous(labels = percent, breaks=pretty_breaks(6)) +
             fte_theme() +
             theme(plot.title = element_text(size=7)) +
-            labs(title = "What Percentage of the Top Comments in Reddit Threads Were Also 1st Comment?",
-                 subtitle = "Proportion of Score Rankings for First Comment",
+            labs(title = "What Percentage of the 1st Comments in Reddit Threads Were Also the Top-Voted Comment?",
                  x = "Score Rank of First Comment in Thread (Lower Number is Higher Score)",
                  y = "Proportion of all First Comments at Score Rank")
 
 max_save(plot, "reddit-first-3", "Reddit (Jan 2015 - Sep 2016)")
-#ggplotly(plot, width="100%", tooltip=c("x", "y", "z"))
 ```
 ![](reddit-first-3.png)
+
+Invert the dataframe to arrange by Top Comment (this should be symmetric, per the 2D map).
+
+```{r}
+df_top_comment <- df %>% filter(score_rank == 1) %>%
+                        mutate(norm = num_comments/sum(num_comments))
+
+df_top_comment %>% head()
+```
+
+The aggregate accounts for *n = `r df_top_comment %>% select(num_comments) %>% sum() %>% format(big.mark = ",")`* first comments.
+
+The total proportion of the top 5 ranks is `r df_top_comment %>% select(norm) %>% head(5) %>% sum() %>% round(2)`, and the top 10 ranks is `r df_top_comment %>% select(norm) %>% head(10) %>% sum() %>% round(2)`.
+
+```{r}
+plot <- ggplot(df_top_comment, aes(x=created_rank, y=norm)) +
+            geom_bar(stat = "identity", fill = "#c0392b") +
+            scale_x_continuous(breaks = c(1,seq(10,100,by=10))) +
+            scale_y_continuous(labels = percent, breaks=pretty_breaks(6)) +
+            fte_theme() +
+            theme(plot.title = element_text(size=7)) +
+            labs(title = "What Percentage of the Top-Voted Comments in Reddit Threads Were Also the 1st Comment?",
+                 x = "# Comment Which Resulted in Top-Voted Comment (Lower Number is Posted Earlier)",
+                 y = "Proportion of all Top-Voted Comments at Comment Posting #")
+
+max_save(plot, "reddit-first-4", "Reddit (Jan 2015 - Sep 2016)")
+```
+![](reddit-first-4.png)
 
 # Analyze by Subreddits
 ## Get Subreddit Data from BigQuery
@@ -210,7 +236,7 @@ df_subreddits %>% head()
 ```
 
 ```{r, eval=FALSE}
-write.csv(df_subreddits, "reddit_012015_by_subreddit.csv")
+write.csv(df_subreddits, "reddit_012015_by_subreddit.csv", row.names=F)
 ```
 
 Read from cached output.
