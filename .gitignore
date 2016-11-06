@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.httr-oauth
+plotly/
+reddit-first-1d.html
+reddit_012015_by_subreddit.csv
