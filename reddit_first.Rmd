@@ -22,10 +22,13 @@ Setup the R packages.
 
 ```{r}
 source("Rstart.R")
+
 library(viridis)
 library(plotly)
 library(bigrquery)
 library(htmlwidgets)
+
+sessionInfo()
 ```
 
 This project uses data from [BigQuery](https://cloud.google.com/bigquery/). To get the data for the first charts, run this query:
